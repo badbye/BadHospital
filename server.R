@@ -18,7 +18,11 @@ library(htmlwidgets)
 shinyServer(function(input, output) {
   ## barplot of cities
   city_tb = substr(hospital$name, 1, 2) %>% table %>% sort(decreasing = T)
-  scales_list = ifelse(is_mac, list('fontfamily' = 'STKaiti'), list())
+  if (is_mac){
+    scales_list = list('fontfamily' = 'STKaiti')
+  }else{
+    scales_list = list()
+  }
   output$barCity <- renderPlot({
     lattice::barchart(city_tb[1:input$barCityTop], scales = scales_list,
                       panel = function(x, y, ...){
@@ -36,7 +40,7 @@ shinyServer(function(input, output) {
         ) %>%  
         addCircleMarkers(lng=hospital$lon, lat=hospital$lat, 
                          popup=hospital$name, radius = 3, 
-                         opacity = 0.3)
+                         opacity = 0.3) 
     
     density_map <- base_map %>% 
       htmlwidgets::onRender("function(el, x, data) {
@@ -44,7 +48,11 @@ shinyServer(function(input, output) {
           data = data.map(function(val) { return [val.lat, val.lon, 1]; });
           L.heatLayer(data, {radius:15,blur:15,minOpacity:0.5}).addTo(this);
         }", data = hospital[, 1:2])
-    ifelse(input$is_density, density_map, base_map)
+    if (input$is_density) {
+      density_map
+    }else{
+      base_map
+    }
   })
 })
 

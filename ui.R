@@ -13,7 +13,8 @@ shinyUI(navbarPage("莆田害人医院分布", id="nav",
       tags$head(
         # Include our custom CSS
         includeCSS("styles.css"),
-        includeScript("gomap.js")
+        includeScript("gomap.js"),
+        tags$script(src="http://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js")
       ),
 
       leaflet::leafletOutput("map", width="100%", height="100%"),
@@ -25,7 +26,7 @@ shinyUI(navbarPage("莆田害人医院分布", id="nav",
                     width = 330, height = "auto",
                     
                     h2("参数调整"),
-                    checkboxInput('is_density', '密度', value = FALSE),
+                    checkboxInput('is_density', '密度', value = TRUE),
                     
                     sliderInput('barCityTop', '最密集城市', min = 5, max = 20, value = 10),
                     plotOutput("barCity", height = 400)
