@@ -35,12 +35,12 @@ shinyServer(function(input, output) {
   output$map <- renderLeaflet({
     base_map <- leaflet() %>% registerPlugin(heatPlugin) %>%
         addTiles(
-          urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
-          attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
+          urlTemplate = urlTemplates[i],
+          attribution = attributions[i]
         ) %>%  
         addCircleMarkers(lng=hospital$lon, lat=hospital$lat, 
                          popup=hospital$name, radius = 3, 
-                         opacity = 0.3) 
+                         opacity = 0.3, color = '#fa9fb5') 
     
     density_map <- base_map %>% 
       htmlwidgets::onRender("function(el, x, data) {
@@ -48,6 +48,8 @@ shinyServer(function(input, output) {
           data = data.map(function(val) { return [val.lat, val.lon, 1]; });
           L.heatLayer(data, {radius:15,blur:15,minOpacity:0.5}).addTo(this);
         }", data = hospital[, 1:2])
+    return(base_map
+           )
     if (input$is_density) {
       density_map
     }else{

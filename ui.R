@@ -26,6 +26,9 @@ shinyUI(navbarPage("莆田害人医院分布", id="nav",
                     width = 330, height = "auto",
                     
                     h2("参数调整"),
+                    selectInput('theme', '主题:',
+                                choices = theme_names, 
+                                selected = '深色底图'),
                     checkboxInput('is_density', '密度', value = TRUE),
                     
                     sliderInput('barCityTop', '最密集城市', min = 5, max = 20, value = 10),

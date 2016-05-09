@@ -34,3 +34,15 @@ registerPlugin <- function(map, plugin) {
   map$dependencies <- c(map$dependencies, list(plugin))
   map
 }
+
+## themes
+urlTemplates = c('//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png',
+                 '//webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
+                 '//www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
+                 '//map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}')
+attributions = c('Maps by <a href="http://www.mapbox.com/">Mapbox</a>',
+                 '高德地图',
+                 'Google Map',
+                 'geoq'
+                 )
+theme_names = c('Mapbox' = 1, '电子地图' = 2, '卫星地图' = 3, '深色底图' = 4)
