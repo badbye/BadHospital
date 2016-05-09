@@ -3,23 +3,22 @@
 # You can find out more about building applications with Shiny here:
 #
 # http://shiny.rstudio.com
-#
+#' Created on 2016.05.09
+#' 
+#' @author: yalei
+
 
 library(shiny)
 library(magrittr)
 library(leaflet)
 library(lattice)
-library(DT)
+library(htmlwidgets)
 
 
 shinyServer(function(input, output) {
   ## barplot of cities
-  city_tb = substr(df$name, 1, 2) %>% table %>% sort(decreasing = T)
-  if (is_mac){
-    scales_list = list('fontfamily' = 'STKaiti')
-  }else{
-    scales_list = list()
-  }
+  city_tb = substr(hospital$name, 1, 2) %>% table %>% sort(decreasing = T)
+  scales_list = ifelse(is_mac, list('fontfamily' = 'STKaiti'), list())
   output$barCity <- renderPlot({
     lattice::barchart(city_tb[1:input$barCityTop], scales = scales_list,
                       panel = function(x, y, ...){
@@ -28,37 +27,28 @@ shinyServer(function(input, output) {
                       })
   })
   
-  ## interactive map
+  ## interactive leaflet map
   output$map <- renderLeaflet({
-    leaflet() %>%
-      addTiles(
-        urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
-        attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
-      ) %>%  
-      addCircleMarkers(lng=df$lon, lat=df$lat, 
-                       popup=df$name, radius = 3, 
-                       opacity = 0.3) %>%
-      setView(lng = mean(df$lon), lat = mean(df$lat), zoom=4)
+    base_map <- leaflet() %>% registerPlugin(heatPlugin) %>%
+        addTiles(
+          urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
+          attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
+        ) %>%  
+        addCircleMarkers(lng=hospital$lon, lat=hospital$lat, 
+                         popup=hospital$name, radius = 3, 
+                         opacity = 0.3)
+    
+    density_map <- base_map %>% 
+      htmlwidgets::onRender("function(el, x, data) {
+          data = HTMLWidgets.dataframeToD3(data);
+          data = data.map(function(val) { return [val.lat, val.lon, 1]; });
+          L.heatLayer(data, {radius:15,blur:15,minOpacity:0.5}).addTo(this);
+        }", data = hospital[, 1:2])
+    ifelse(input$is_density, density_map, base_map)
   })
 })
 
 
-# X=cbind(df$lon, df$lat)
-# kde2d <- KernSmooth::bkde2D(X, bandwidth=c(bw.ucv(X[,1]),bw.ucv(X[,2])),
-#                             gridsize = c(10, 10))
-# contour(kde2d$x1, kde2d$x2, kde2d$fhat)
-# 
-# CL = contourLines(kde2d$x1, kde2d$x2, kde2d$fhat)
-# density_level = sapply(CL, function(x) x$level)
-# m = leaflet() %>%
-#   addCircleMarkers(lng=df$lon, lat=df$lat, 
-#                    popup=df$name, radius = 3, 
-#                    opacity = 0.3) %>%
-#   setView(lng = mean(df$lon), lat = mean(df$lat), zoom=4)
-# 
-# for (i in seq_along(CL)){
-#   m = m %>% addPolygons(CL[[i]]$x,CL[[i]]$y,
-#                         fillColor = ifelse(density_level[i] >= quantile(density_level, 0.75), "red", 'yellow'), stroke  = FALSE,
-#                         opacity = density_level[i] * 100 * 0.8)
-# }
-# m
+## Reference
+# https://bl.ocks.org/timelyportfolio/8f6c8cc27597466351ad377e6774c30f
+# devtools::install_github('Ramnath/htmlwidgets')
