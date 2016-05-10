@@ -25,6 +25,7 @@ shinyServer(function(input, output) {
   }
   output$barCity <- renderPlot({
     lattice::barchart(city_tb[1:input$barCityTop], scales = scales_list,
+                      xlab = paste('Top', input$barCityTop),
                       panel = function(x, y, ...){
                         panel.barchart(x, y, ...);
                         ltext(x=x + 1.5, y=y, labels=x, cex = 0.8)
@@ -34,27 +35,19 @@ shinyServer(function(input, output) {
   ## interactive leaflet map
   output$map <- renderLeaflet({
     base_map <- leaflet() %>% registerPlugin(heatPlugin) %>%
-        addTiles(
-          urlTemplate = urlTemplates[i],
-          attribution = attributions[i]
-        ) %>%  
-        addCircleMarkers(lng=hospital$lon, lat=hospital$lat, 
-                         popup=hospital$name, radius = 3, 
-                         opacity = 0.3, color = '#fa9fb5') 
-    
-    density_map <- base_map %>% 
+      addTiles(
+        urlTemplate = urlTemplates[as.integer(input$theme)],
+        attribution = attributions[as.integer(input$theme)]
+      ) %>% 
+      addCircleMarkers(lng=hospital$lon, lat=hospital$lat, 
+                       popup=hospital$name, radius = 3, fill = FALSE,
+                       opacity = input$opacity, color = theme_colors[as.integer(input$theme)]) %>%
       htmlwidgets::onRender("function(el, x, data) {
-          data = HTMLWidgets.dataframeToD3(data);
-          data = data.map(function(val) { return [val.lat, val.lon, 1]; });
-          L.heatLayer(data, {radius:15,blur:15,minOpacity:0.5}).addTo(this);
-        }", data = hospital[, 1:2])
-    return(base_map
-           )
-    if (input$is_density) {
-      density_map
-    }else{
-      base_map
-    }
+                            data = HTMLWidgets.dataframeToD3(data);
+                            data = data.map(function(val) { return [val.lat, val.lon, 1]; });
+                            L.heatLayer(data, {radius:15,blur:15,minOpacity:0.5}).addTo(this);
+      }", data = hospital[, 1:2]) %>%
+      setView(113.66950, 34.76974, zoom = 4)
   })
 })
 

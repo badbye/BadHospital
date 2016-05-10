@@ -7,10 +7,10 @@ library(shiny)
 library(leaflet)
 
 
-shinyUI(navbarPage("莆田害人医院分布", id="nav",
- tabPanel("Interactive leaflet Map",
+shinyUI(
     div(class="outer",
       tags$head(
+        tags$title('XX医院分布'),
         # Include our custom CSS
         includeCSS("styles.css"),
         includeScript("gomap.js"),
@@ -21,19 +21,23 @@ shinyUI(navbarPage("莆田害人医院分布", id="nav",
       
       absolutePanel(id = "controls", class = "panel panel-default", 
                     fixed = TRUE, draggable = TRUE, 
-                    top = 60, left = "auto", 
-                    right = 20, bottom = "auto",
+                    top = 10, left = "auto", 
+                    right = 10, bottom = "auto",
                     width = 330, height = "auto",
                     
                     h2("参数调整"),
                     selectInput('theme', '主题:',
                                 choices = theme_names, 
                                 selected = '深色底图'),
-                    checkboxInput('is_density', '密度', value = TRUE),
+                    sliderInput('opacity', '散点透明度', min = 0, max = 1, value = 0.1),
+                    # selectInput('is_density', '密度', 
+                    #               choices = list('散点' = 'point', '密度' = 'density'),
+                    #               selected = 'density'),
+                    # actionButton('switch', '刷新'),
                     
+                    tags$br(),
+                    tags$br(),
                     sliderInput('barCityTop', '最密集城市', min = 5, max = 20, value = 10),
                     plotOutput("barCity", height = 400)
                   )
-      )
-    )
 ))

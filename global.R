@@ -46,3 +46,4 @@ attributions = c('Maps by <a href="http://www.mapbox.com/">Mapbox</a>',
                  'geoq'
                  )
 theme_names = c('Mapbox' = 1, '电子地图' = 2, '卫星地图' = 3, '深色底图' = 4)
+theme_colors = c('#9ecae1', '#9ecae1', '#7fcdbb', '#fde0dd')
